@@ -43,9 +43,70 @@ function setWindow() {
 
 function startGame() {
     resetInitial();
+    clearWindows();
     //resetValue(10,1,0); ovako smo pocetno htjeli zapisati, ali smo drukcije nastavili u restInitial()
     generateFaces();
     cloneFaces();
+    counter(initialTime);
+}
+
+function counter(time) {
+    startBtn.style.opacity = 0.5;
+    startBtn.style.cursor = "default";
+    startBtn.onclick = null;
+    var loop = setInterval(counting, 1000);
+    function counting() {
+        time--;
+        timeBox.innerHTML = time;
+        if (time < 0) {
+            clearInterval(loop);
+            var restart = confirm("Game Over!\n\n" + "Your score is: " + points + "\nOn level: " + initalLevel + "\n\nDo you want to play again?");
+            if (restart) {
+                startGame();
+            } else {
+                body.onclick = null;
+                resetInitial();
+                clearWindows();
+                startBtn.style.opacity = 1;
+                startBtn.style.cursor = "pointer";
+                startBtn.onclick = function () {
+                    startGame();
+                }
+            }
+        } else {
+            leftSide.lastChild.onclick = function (event) {
+                event.stopPropagation();
+                clearInterval(loop);
+                numberOfFaces += 5;
+                initalLevel++;
+                points = points + (2 * initalLevel);
+                time = initialTime * (initalLevel / 2); // time + (initialTime * (initalLevel / 2));
+                resetValue(time, initalLevel, points);
+                count = 0;
+                clearWindows();
+                generateFaces();
+                cloneFaces();
+                counter(time);
+            }
+            body.onclick = function () {
+                clearInterval(loop);
+                var restart = confirm("Game Over!\n\n" + "Your score is: " + points + "\nOn level: " + initalLevel + "\n\nDo you want to play again?");
+                if (restart) {
+                    startGame();
+                } else {
+                    body.onclick = null;
+                    leftSide.lastChild.onclick = null;
+                    resetInitial();
+                    clearWindows();
+                    startBtn.style.opacity = 1;
+                    startBtn.style.cursor = "pointer";
+                    startBtn.onclick = function () {
+                        startGame();
+                    }
+                }
+            }
+        }
+    }
 }
 
 function resetInitial() {
@@ -89,4 +150,13 @@ function cloneFaces(){
     leftSideImages.removeChild(leftSideImages.lastChild);
     leftSideImages.removeAttribute('id');
     rightSide.appendChild(leftSideImages);
+}
+
+function clearWindows() {
+    while (leftSide.firstChild) {
+        leftSide.removeChild(leftSide.firstChild);
+    }
+    while (rightSide.firstChild) {
+        rightSide.removeChild(rightSide.firstChild);
+    }
 }
